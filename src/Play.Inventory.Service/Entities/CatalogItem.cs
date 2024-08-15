@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Play.Common;
+using Play.Common.Service.Entities;
 
 namespace Play.Inventory.Service.Entities
 {

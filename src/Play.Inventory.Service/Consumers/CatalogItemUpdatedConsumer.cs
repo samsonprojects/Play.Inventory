@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MassTransit;
 using Play.Common;
+using Play.Common.Service.Repositories;
 using Play.Inventory.Service.Entities;
 using static Play.Catalog.Contracts.Contracts;
 
