@@ -34,15 +34,16 @@ namespace Play.Inventory.Service.Consumers
             var foundInventoryItem = await _inventoryItemsRepository.GetAsync(item => item.CatalogItemId == message.CatalogItemId && message.UserId == item.userId);
             if (foundInventoryItem != null)
             {
+                if (foundInventoryItem.MessageIds.Contains(context.MessageId.Value))
+                {
+                    await context.Publish(new InventoryItemsGranted(message.CorrelationId));
+                    return;
+                }
 
                 foundInventoryItem.Quantity -= message.Quantity;
+                foundInventoryItem.MessageIds.Add(context.MessageId.Value);
                 await _inventoryItemsRepository.UpdateAsync(foundInventoryItem);
-
-
             }
-
-
-
 
             await context.Publish(new InventoryItemsSubtracted(message.CorrelationId));
         }

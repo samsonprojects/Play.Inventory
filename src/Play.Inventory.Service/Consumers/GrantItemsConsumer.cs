@@ -38,17 +38,25 @@ namespace Play.Inventory.Service.Consumers
                 {
                     CatalogItemId = message.CatalogItemId,
                     userId = message.UserId,
-                    Quantity = message.Quantity
-                    ,
+                    Quantity = message.Quantity,
                     AcquiredDate = DateTimeOffset.UtcNow
 
                 };
+
+                inventoryItem.MessageIds.Add(context.MessageId.Value);
+
                 await _inventoryItemsRepository.CreateAsync(inventoryItem);
 
             }
             else
             {
+                if (foundInventoryItem.MessageIds.Contains(context.MessageId.Value))
+                {
+                    await context.Publish(new InventoryItemsGranted(message.CorrelationId));
+                    return;
+                }
                 foundInventoryItem.Quantity += message.Quantity;
+                foundInventoryItem.MessageIds.Add(context.MessageId.Value);
                 await _inventoryItemsRepository.UpdateAsync(foundInventoryItem);
             }
 

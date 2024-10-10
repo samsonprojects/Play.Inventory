@@ -63,7 +63,8 @@ namespace Play.Inventory.Service
                 app.UseCors(builder =>
                 {
                     builder.WithOrigins(Configuration[AllowedOriginSetting])
-                    .AllowAnyOrigin().AllowAnyMethod();
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
                 });
             }
 
