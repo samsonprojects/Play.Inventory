@@ -31,7 +31,7 @@ namespace Play.Inventory.Service.Consumers
             {
                 throw new UnknownItemException(message.CatalogItemId);
             }
-            var foundInventoryItem = await _inventoryItemsRepository.GetAsync(item => item.CatalogItemId == message.CatalogItemId && message.UserId == item.userId);
+            var foundInventoryItem = await _inventoryItemsRepository.GetAsync(item => item.CatalogItemId == message.CatalogItemId && message.UserId == item.UserId);
             if (foundInventoryItem != null)
             {
                 if (foundInventoryItem.MessageIds.Contains(context.MessageId.Value))
@@ -43,6 +43,15 @@ namespace Play.Inventory.Service.Consumers
                 foundInventoryItem.Quantity -= message.Quantity;
                 foundInventoryItem.MessageIds.Add(context.MessageId.Value);
                 await _inventoryItemsRepository.UpdateAsync(foundInventoryItem);
+                await context.Publish(new InventoryItemUpdated(
+                    context.Message.UserId,
+                    context.Message.CatalogItemId,
+                    context.Message.Quantity
+                ));
+
+
+
+
             }
 
             await context.Publish(new InventoryItemsSubtracted(message.CorrelationId));

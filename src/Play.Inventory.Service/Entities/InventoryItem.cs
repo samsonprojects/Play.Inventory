@@ -11,7 +11,7 @@ namespace Play.Inventory.Service.Entities
     {
         public Guid Id { get; set; }
 
-        public Guid userId { get; set; }
+        public Guid UserId { get; set; }
 
         public Guid CatalogItemId { get; set; }
 

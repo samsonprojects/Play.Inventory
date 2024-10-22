@@ -31,13 +31,13 @@ namespace Play.Inventory.Service.Consumers
             {
                 throw new UnknownItemException(message.CatalogItemId);
             }
-            var foundInventoryItem = await _inventoryItemsRepository.GetAsync(item => item.CatalogItemId == message.CatalogItemId && message.UserId == item.userId);
+            var foundInventoryItem = await _inventoryItemsRepository.GetAsync(item => item.CatalogItemId == message.CatalogItemId && message.UserId == item.UserId);
             if (foundInventoryItem == null)
             {
                 var inventoryItem = new InventoryItem()
                 {
                     CatalogItemId = message.CatalogItemId,
-                    userId = message.UserId,
+                    UserId = message.UserId,
                     Quantity = message.Quantity,
                     AcquiredDate = DateTimeOffset.UtcNow
 
@@ -61,7 +61,15 @@ namespace Play.Inventory.Service.Consumers
             }
 
 
-            await context.Publish(new InventoryItemsGranted(message.CorrelationId));
+
+            var inventoryItemsGrantedTask = context.Publish(new InventoryItemsGranted(message.CorrelationId));
+            var inventoryItemUpdatedTask = context.Publish(new InventoryItemUpdated(
+                context.Message.UserId,
+                context.Message.CatalogItemId,
+                context.Message.Quantity
+            ));
+
+            await Task.WhenAll(inventoryItemUpdatedTask, inventoryItemsGrantedTask);
         }
     }
 }
